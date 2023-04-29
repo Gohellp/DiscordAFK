@@ -28,7 +28,8 @@ function authenticate(ws) {
                 since: 0,
                 activities: [
                     {
-                        name:"Test some shit",
+                        name:"Went AFK",
+                        details: "(mb he sleep, idk)",
                         type:0
                     }
                 ],
