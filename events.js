@@ -5,7 +5,7 @@ function authenticate(ws) {
     ws.send(JSON.stringify({
         op: 2,
         d: {
-            token: process.env.token,
+            token:process.env.token,
             capabilities: 61,
             properties: {
                 os: "Linux",
@@ -26,7 +26,12 @@ function authenticate(ws) {
             presence: {
                 status: "online",
                 since: 0,
-                activities: [],
+                activities: [
+                    {
+                        name:"Test some shit",
+                        type:0
+                    }
+                ],
                 afk: false
             },
             compress: false,
@@ -59,17 +64,21 @@ exports.heartbeat = heartbeat;
 
 // Ready
 const filter = [
-    'CHANNEL_UPDATE',
+    'STREAM_UPDATE',
+    'MESSAGE_CREATE',
     'CHANNEL_DELETE',
+    'CHANNEL_UPDATE',
+    'SESSIONS_REPLACE',
     'READY_SUPPLEMENTAL',
     'GUILD_MEMBER_UPDATE',
-    'STREAM_UPDATE',
-    'VOICE_SERVER_UPDATE'
+    'VOICE_SERVER_UPDATE',
+    'GUILD_AUDIT_LOG_ENTRY_CREATE'
 ]
 
 function ready(ws, data) {
     switch (data['t']) {
         case 'READY':
+            console.log(data.d.user)
             console.log('Connected')
             voice(ws)
             break
@@ -77,23 +86,6 @@ function ready(ws, data) {
         case 'VOICE_STATE_UPDATE':
             session_id = data['d'].session_id
             break
-
-        case 'STREAM_CREATE':
-            rtc_server_id = data['d'].rtc_server_id
-            break
-
-        case 'STREAM_SERVER_UPDATE':
-            stream_token = data['d'].token
-            stream_endpoint = data['d'].endpoint
-
-            require('./stream')({
-                server_id: rtc_server_id,
-                session_id: session_id,
-                token: stream_token,
-                endpoint: stream_endpoint
-            })
-            break
-
         default:
             !filter.includes(data['t']) && console.log(data)
     }
@@ -117,38 +109,12 @@ function voice(ws) {
         }
     }), () => {
         console.log("Joined voice channel")
-        screen(ws)
     })
     voice_connected = true
 }
 
 exports.voice = voice;
 
-// Screen Share
-function screen(ws) {
-    // start sharing
-    ws.send(JSON.stringify({
-        op: 18,
-        d: {
-            type: "guild",
-            guild_id: process.env.guild_id,
-            channel_id: process.env.channel_id,
-            preferred_region: null
-        }
-    }), () => {
-        // send stream key
-        ws.send(JSON.stringify({
-            op: 22,
-            d: {
-                paused: false,
-                stream_key: `guild:${process.env.guild_id}:${process.env.channel_id}:${process.env.user_id}`
-            }
-        }), () => console.log("Stream started"))
-    })
-}
-
-exports.screen = screen;
 
 // Data variables
-let rtc_server_id, session_id
-let stream_token, stream_endpoint
+let session_id

@@ -30,8 +30,8 @@ ws.on('message', rawData => {
     }
 })
 
-ws.on('close', () => {
-    console.error("Connection Closed")
+ws.on('close', (some,idk) => {
+    console.error("Connection Closed",some,idk)
 })
 
 process.on('SIGINT', () => {
