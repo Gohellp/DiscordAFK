@@ -30,7 +30,10 @@ function authenticate(ws) {
                     {
                         name:"Went AFK",
                         details: "(mb he sleep, idk)",
-                        type:0
+                        type:0,
+                        assets:{
+                            large_image:"mp:attachments/1006997353993093161/1102021420575363113/g97sYZ48yjY.jpg"
+                        },
                     }
                 ],
                 afk: false
